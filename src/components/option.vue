@@ -5,18 +5,16 @@
       <form-preview header-label="目标" :header-value="item.name" :body-items="item.list"></form-preview>
     </template>
     <group>
-      <x-switch title="输出日志"></x-switch>
-      <x-switch title="发送邮件" v-model="value1"></x-switch>
+      <x-switch title="输出日志" v-model="option.log.show"></x-switch>
+      <x-switch title="发送邮件" v-model="option.email.send"></x-switch>
       <x-switch title="全局关键词" v-model="qwe"></x-switch>
       <x-input title="包括" v-show="qwe" type="text" placeholder="用英文逗号分隔"></x-input>
       <x-input title="排除" v-show="qwe" type="text" placeholder="用英文逗号分隔"></x-input>
+      <popup-picker title="时间间隔(s)" :data="list1" v-model="option.time"></popup-picker>
     </group>
     <br>
     <div style="margin: 10px">
       <flexbox>
-        <flexbox-item>
-          <x-button type="default">编辑</x-button>
-        </flexbox-item>
         <flexbox-item>
           <x-button type="default">添加</x-button>
         </flexbox-item>
@@ -25,19 +23,22 @@
         </flexbox-item>
       </flexbox>
     </div>
-    <group title="确认输入">
-      <x-input title="目标" type="text" placeholder="" ></x-input>
-      <x-input title="最低价格" type="text" placeholder=""></x-input>
-      <x-input title="最高价格" type="text" placeholder=""></x-input>
-      <x-switch title="关键词" v-model="qwe"></x-switch>
-      <x-input title="包括" v-show="qwe" type="text" placeholder="用英文逗号分隔"></x-input>
-      <x-input title="排除" v-show="qwe" type="text" placeholder="用英文逗号分隔"></x-input>
-    </group>
+    <x-dialog v-model="showDialog" class="dialog-demo" :scroll="false">
+      <group title="确认输入">
+        <x-input title="目标" type="text" placeholder="" ></x-input>
+        <x-input title="最低价格" type="text" placeholder=""></x-input>
+        <x-input title="最高价格" type="text" placeholder=""></x-input>
+        <x-switch title="关键词" v-model="option.keyword"></x-switch>
+        <x-input title="包括" v-show="qwe" type="text" placeholder="用英文逗号分隔"></x-input>
+        <x-input title="排除" v-show="qwe" type="text" placeholder="用英文逗号分隔"></x-input>
+      </group>
+    </x-dialog>
+
   </div>
 </template>
 
 <script>
-  import {FormPreview, Group, Tabbar, TabbarItem, Cell, XSwitch, XButton, Flexbox, FlexboxItem, XDialog, XInput} from 'vux'
+  import {FormPreview, Group, Tabbar, TabbarItem, Cell, XSwitch, XButton, Flexbox, FlexboxItem, XDialog, XInput, PopupPicker} from 'vux'
   export default {
     components: {
       Group,
@@ -46,11 +47,14 @@
       Cell,
       FormPreview,
       XSwitch,
-      XButton, Flexbox, FlexboxItem,XDialog, XInput
+      XButton, Flexbox, FlexboxItem,XDialog, XInput, PopupPicker
     },
     data () {
       return {
       	qwe: true,
+        showDialog: true,
+        list1: [[10,30,60,120,300]],
+        value2: [10],
         option: {
           target: [
             {
@@ -79,7 +83,7 @@
             include: '全新,未拆,送的,京东,抽奖',
             except: '几乎,基本,用过,用了,成新,9.9,差不多,仅'
           },
-          time: 60000,
+          time: [60],
           email: {
             send: false,
             address: '1016812275@qq.com'
