@@ -6,41 +6,6 @@ var nodemailer = require('nodemailer');
 
 
 var startHunt = function (option) {
-  // 配置信息
-  
-/*
-  var option = {
-    target: [
-      {
-        name: 'kindle',
-        price: {
-          from: 300,
-          to: 420
-        }
-      },
-      {
-        name: 'ipad10.5',
-        price: {
-          from: 4000,
-          to: 4500
-        }
-      }
-    ],
-    keyword: {
-      include: '全新,未拆,送的,京东,抽奖',
-      except: '几乎,基本,用过,用了,成新,9.9,差不多'
-    },
-    time: 60000,
-    email: {
-      send: false,
-      address: '1016812275@qq.com'
-    },
-    log: {
-      show: true,
-      color: 'green'
-    }
-  }
-*/
 
 // 存放结果
   var results = []
@@ -134,7 +99,7 @@ var startHunt = function (option) {
   }
 
 // 筛选信息
-  function filterItem(html,keyword) {
+  function filterItem(html,keyword, target) {
     var $ = cheerio.load(iconv.decode(Buffer.concat(html), 'gbk'));
     var items = $('.ks-waterfall')
     for (var i = 0; i < items.length; i++) {
@@ -151,7 +116,8 @@ var startHunt = function (option) {
           href: href,
           descr: descr,
           id: id,
-          isNew: true
+          isNew: true,
+          name: target
         })
       }
     }
@@ -161,7 +127,7 @@ var startHunt = function (option) {
   var getInfo = function () {
     for(var i = 0;i< option.target.length;i++){
       (function () {
-        var keyword = option.target[i].keyword || option.keyword;
+        var keyword = option.target[i].keyword.on ? option.target[i].keyword : option.keyword;
         var target = option.target[i];
         var url = 'https://s.2.taobao.com/list/list.htm?start=' + target.price.from + '&end=' + target.price.to + '&q=' + target.name + '&ist=1';
         http.get(url, function (res) {
@@ -170,7 +136,7 @@ var startHunt = function (option) {
             html.push(data);
           });
           res.on('end', function () {
-            filterItem(html, keyword);
+            filterItem(html, keyword, target.name);
             if(option.log.show){
               printLog(target.name)
             }
@@ -188,7 +154,7 @@ var startHunt = function (option) {
   }
   
   getInfo();
-  var intervalId = setInterval(getInfo, option.time)
+  var intervalId = setInterval(getInfo, option.time[0]*1000)
   return {
     id: intervalId,
     results: results

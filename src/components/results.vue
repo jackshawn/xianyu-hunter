@@ -1,81 +1,66 @@
 <template>
   <div>
     <panel :list="list" type="4"></panel>
+    <div style="margin: 20px">
+      <x-button type="primary" :show-loading="btnLoading" @click.native="loadMore">{{btnInfo}}</x-button>
+    </div>
   </div>
 </template>
 
 <script>
-  import {Panel} from 'vux'
-  
+  import {Panel, XButton} from 'vux'
   export default {
     components: {
-      Panel
-
+      Panel,
+      XButton
     },
     data () {
       return {
-        msg: 'Hello World!',
-        option: {
-          target: [
-            {
-              name: 'kindle',
-              price: {
-                from: 300,
-                to: 420
+        btnLoading: false,
+        btnInfo: '加载更多',
+        list:[]
+      }
+    },
+    mounted(){
+    	this.getResults()
+    },
+    methods: {
+    	loadMore(){
+    		this.btnLoading = true;
+    		this.btnInfo = '正在加载中...'
+        this.getResults()
+      },
+      getResults(){
+        let _this = this;
+        var request = new XMLHttpRequest();
+        request.open('GET', '/getResults');
+        request.setRequestHeader("Content-type","application/json;charset=utf-8");
+        request.send();
+        request.onreadystatechange = function () {
+          if (request.readyState === 4) {
+            if (request.status === 200) {
+              let results = JSON.parse(request.responseText);
+              _this.list = [];
+              for(let i = 0;i<results.length; i++){
+                _this.list.push({
+                  title: '@'+results[i].seller+':'+results[i].price,
+                  desc: results[i].descr,
+                  url: results[i].href,
+                  meta: {
+                    source: results[i].location,
+                    date: results[i].time,
+                    other: results[i].name
+                  }
+                })
               }
-            },
-            {
-              name: 'surfacepro4',
-              price: {
-                from: 3000,
-                to: 5500
-              }
-            },
-            {
-              name: 'ipad 10.5',
-              price: {
-                from: 4000,
-                to: 4500
-              }
-            }
-          ],
-          keyword: {
-            include: '全新,未拆,送的,京东,抽奖',
-            except: '几乎,基本,用过,用了,成新,9.9,差不多,仅'
-          },
-          time: 60000,
-          email: {
-            send: false,
-            address: '1016812275@qq.com'
-          },
-          log: {
-            show: true,
-            color: 'green'
-          }
-        },
-        type: '1',
-        list: [
-          {
-            title: '1440',
-            desc: '由各种物质组成的巨型球状天体，叫做星球。星球有一定的形状，有自己的运行轨道。',
-            url: 'http://h5.m.taobao.com/2shou/mtdetail/index.html?id=544826575080&hybrid=true'
-          },
-          {
-            title: '标题二',
-            desc: '由各种物质组成的巨型球状天体，叫做星球。星球有一定的形状，有自己的运行轨道。',
-            url: '/component/cell',
-            meta: {
-              source: '来源信息',
-              date: '时间',
-              other: '其他信息'
+              _this.btnLoading = false;
+              _this.btnInfo = '正在更多'
+            } else {
+              alert("发生错误：" + request.status);
             }
           }
-        ]
+        }
       }
     }
   }
 </script>
-
-<style>
-
-</style>
