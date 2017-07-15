@@ -66,54 +66,7 @@
         showAlert: false,
         deleBtnState: true,
         timeList: [[10, 30, 60, 120, 300]],
-        option: {
-          target: [
-            {
-              name: 'kindle',
-              price: {
-                from: 300,
-                to: 420
-              },
-              keyword: {
-              	on: false
-              }
-            },
-            {
-              name: 'surfacepro4',
-              price: {
-                from: 3000,
-                to: 5500
-              },
-              keyword: {
-                on: false
-              }
-            },
-            {
-              name: 'ipad 10.5',
-              price: {
-                from: 4000,
-                to: 4500
-              },
-              keyword: {
-                on: false
-              }
-            }
-          ],
-          keyword: {
-            on: true,
-            include: '全新,未拆,送的,京东,抽奖',
-            except: '几乎,基本,用过,用了,成新,9.9,差不多,仅'
-          },
-          time: [60],
-          email: {
-            send: false,
-            address: '1016812275@qq.com'
-          },
-          log: {
-            show: true,
-            color: 'green'
-          }
-        },
+        option: undefined,
         itemData: {
           index: 0,
           name: '',
@@ -242,7 +195,16 @@
           }
         }
       },
-      deleItem(){},
+      deleItem(){
+      	let index = this.itemData.index
+        for(let i = 0;i<this.option.target.length;i++){
+      		if(i===index){
+            this.option.target.splice(i, 1)
+          }
+        }
+        this.initTargets()
+        this.showDialog = false;
+      },
       submit(){
       	let option = this.option;
         let request = new XMLHttpRequest();
@@ -261,7 +223,21 @@
       }
     },
     mounted(){
-    	this.initTargets()
+    	let _this = this;
+      let request = new XMLHttpRequest();
+      request.open('GET', '/getOption');
+      request.setRequestHeader("Content-type","application/json;charset=utf-8");
+      request.send();
+      request.onreadystatechange = function () {
+        if (request.readyState === 4) {
+          if (request.status === 200) {
+            _this.option = JSON.parse(request.responseText);
+            _this.initTargets()
+          } else {
+            alert("发生错误：" + request.status);
+          }
+        }
+      }
     }
   }
 </script>

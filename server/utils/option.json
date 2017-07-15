@@ -1,0 +1,40 @@
+{
+  "target": [
+    {
+      "name": "kindle",
+      "price": {
+        "from": 300,
+        "to": 420
+      },
+      "keyword": {
+        "on": false
+      }
+    },
+    {
+      "name": "ipad 10.5",
+      "price": {
+        "from": 4000,
+        "to": 4500
+      },
+      "keyword": {
+        "on": false
+      }
+    }
+  ],
+  "keyword": {
+    "on": true,
+    "include": "全新,未拆,送的,京东,抽奖",
+    "except": "几乎,基本,用过,用了,成新,9.9,差不多,仅"
+  },
+  "time": [
+    60
+  ],
+  "email": {
+    "send": false,
+    "address": "1016812275@qq.com"
+  },
+  "log": {
+    "show": true,
+    "color": "green"
+  }
+}
