@@ -54,7 +54,7 @@
                 })
               }
               _this.btnLoading = false;
-              _this.btnInfo = '正在更多'
+              _this.btnInfo = '加载更多'
             } else {
               alert("发生错误：" + request.status);
             }

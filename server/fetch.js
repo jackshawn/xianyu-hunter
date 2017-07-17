@@ -78,7 +78,7 @@ var startHunt = function (option) {
     for (var i = 0; i < results.length; i++) {
       if (results[i].isNew) {
         mailOptions.text = 'found';
-        mailOptions.html += ('<p>@' + results[i].seller + '</p><p>' + results[i].price + '</p><a href="' + results[i].href + '">点我跳转</a></br><p>' + results[i].descr + '</p></br></br>')
+        mailOptions.html += ('<p>@' + results[i].seller + '</p><p>' + results[i].price + '</p><p>'+results[i].location+'|'+results[i].time+'</p>><a href="' + results[i].href + '">点我跳转</a></br><p>' + results[i].descr + '</p></br></br>')
       }
     }
     if(mailOptions.text){

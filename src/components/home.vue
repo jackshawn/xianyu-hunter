@@ -4,8 +4,8 @@
       <tab-item selected @click.native="switchTab">配置信息</tab-item>
       <tab-item @click.native="switchTab">爬取结果</tab-item>
     </tab>
-    <options v-if=showFirst></options>
-    <results v-if=!showFirst></results>
+    <options v-show=showFirst></options>
+    <results v-show=!showFirst></results>
   </div>
 </template>
 
