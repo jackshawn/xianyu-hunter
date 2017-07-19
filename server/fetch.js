@@ -3,6 +3,7 @@ var http = require('https');
 var cheerio = require('cheerio');
 var iconv = require('iconv-lite');
 var nodemailer = require('nodemailer');
+var qrcode = require('qrcode-terminal');
 
 
 var startHunt = function (option) {
@@ -57,7 +58,9 @@ var startHunt = function (option) {
     var info = ''
     for (var i = 0; i < results.length; i++) {
       if (results[i].isNew) {
-        info += '@' + results[i].seller + ':' + results[i].price + '\n' + results[i].time + ',' + results[i].location + '\n' + results[i].href + '\n' + results[i].descr + '\n\n'
+        qrcode.generate(results[i].href, function (qr) {
+          info += '@' + results[i].seller + ':' + results[i].price + '\n' + results[i].time + ',' + results[i].location + '\n' + results[i].href + '\n' + results[i].descr + '\n' + qr +'\n\n'
+        });
       }
     }
     if(info){
