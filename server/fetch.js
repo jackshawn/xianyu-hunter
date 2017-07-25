@@ -59,7 +59,7 @@ var startHunt = function (option) {
     for (var i = 0; i < results.length; i++) {
       if (results[i].isNew) {
         qrcode.generate(results[i].href, function (qr) {
-          info += '@' + results[i].seller + ':' + results[i].price + '\n' + results[i].time + ',' + results[i].location + '\n' + results[i].href + '\n' + results[i].descr + '\n' + qr +'\n\n'
+          info += '@' + results[i].seller + ':' + results[i].price + '\n' + results[i].time + ',' + results[i].title + ',' + results[i].location + '\n' + results[i].href + '\n' + results[i].descr + '\n' + qr +'\n\n'
         });
       }
     }
@@ -105,12 +105,20 @@ var startHunt = function (option) {
   function filterItem(html,keyword, target) {
     var $ = cheerio.load(iconv.decode(Buffer.concat(html), 'gbk'));
     var items = $('.ks-waterfall')
-    for (var i = 0; i < items.length; i++) {
+    for (var i = 1; i < items.length; i++) {
       var item = items.eq(i);
       var descr = item.find('.item-brief-desc').text().trim();
-      var id = item.find('.item-pic a').toString().substr(36,12)
+      var id = item.find('.item-pic a').attr('href').substr(27);
+      var title = (function () {
+        var t = item.find('.item-pic a').attr('title');
+        if(t.indexOf('color=red') !== -1){
+          return t.split('<font')[0] + t.split('font>')[t.split('font>').length - 1]
+        }else{
+          return t;
+        }
+      })()
       var href = 'http://h5.m.taobao.com/2shou/mtdetail/index.html?id=' + id + '&hybrid=true';
-      if (checkKeyword(descr, keyword) && !checkResults(id)) {
+      if (checkKeyword(descr + title, keyword) && !checkResults(id)) {
         results.push({
           seller: item.find('.seller-nick').text().trim(),
           price: item.find('.price').find('em').text().trim(),
@@ -120,7 +128,8 @@ var startHunt = function (option) {
           descr: descr,
           id: id,
           isNew: true,
-          name: target
+          name: target,
+          title: title
         })
       }
     }
