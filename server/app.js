@@ -3,9 +3,10 @@ const app = express()
 const bodyParser = require('body-parser')
 const fs= require('fs');
 const path = require('path');
+const opn = require('opn')
 app.use(bodyParser.json())
-app.use(express.static('../dist'));
-const startHunt = require('./fetch')
+app.use(express.static(__dirname + '/../dist'));
+const startHunt = require(__dirname + '/fetch')
 let option, result, id;
 
 
@@ -44,7 +45,6 @@ app.get('/getResults', function (req, res) {
 
 // 启动服务
 let server = app.listen(3000, function () {
-  let host = server.address().address;
-  let port = server.address().port;
-  console.log('Example app listening at http://%s:%s', host, port);
+  console.log('app run success at http://localhost:3000');
+  opn('http://localhost:3000')
 });
