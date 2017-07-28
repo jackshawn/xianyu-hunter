@@ -1,18 +1,21 @@
 <template>
   <div>
-    <p id="user">1010614561@qq.com</p>
+    <p id="user" v-show="option.email.send">{{option.email.address}}</p>
     <template v-for="(item,index) in targets">
       <form-preview header-label="目标" :header-value="item.name" :body-items="item.list"
                     @click.native="showItem(index)"></form-preview>
     </template>
     <group>
       <x-switch title="输出日志" v-model="option.log.show"></x-switch>
+      <x-switch title="显示二维码" v-model="option.showQrcode"></x-switch>
       <x-switch title="发送邮件" v-model="option.email.send"></x-switch>
+      <x-input title="邮箱地址" v-show="option.email.send" v-model="option.email.address" type="text"
+               placeholder="接受邮件的邮箱地址"></x-input>
       <x-switch title="全局关键词" v-model="option.keyword.on"></x-switch>
       <x-input title="包括" v-show="option.keyword.on" v-model="option.keyword.include" type="text"
                placeholder="用英文逗号分隔"></x-input>
       <x-input title="排除" v-show="option.keyword.on" v-model="option.keyword.except" type="text"
-               placeholder="用英文逗号分隔"></x-input>
+               placeholder="用英文逗号分隔,可以为空"></x-input>
       <popup-picker title="时间间隔(s)" :data="timeList" v-model="option.time"></popup-picker>
     </group>
     <br>
@@ -35,7 +38,7 @@
         <x-input title="包括" v-show="itemData.keyword.on" v-model="itemData.keyword.include" type="text"
                  placeholder="用英文逗号分隔"></x-input>
         <x-input title="排除" v-show="itemData.keyword.on" v-model="itemData.keyword.except" type="text"
-                 placeholder="用英文逗号分隔"></x-input>
+                 placeholder="用英文逗号分隔,可以为空"></x-input>
       </group>
       
       <div style="margin: 20px">
@@ -182,7 +185,7 @@
           _this.showDialog = false;
         }
         if (_this.itemData.keyword.on) {
-          if (_this.itemData.name && _this.itemData.price.from && _this.itemData.price.to && _this.itemData.keyword.include && _this.itemData.keyword.except) {
+          if (_this.itemData.name && _this.itemData.price.from && _this.itemData.price.to && _this.itemData.keyword.include) {
             save()
           } else {
             showAlert()
@@ -233,6 +236,7 @@
           if (request.status === 200) {
             _this.option = JSON.parse(request.responseText);
             _this.initTargets()
+            _this.submit()
           } else {
             alert("发生错误：" + request.status);
           }
@@ -244,7 +248,8 @@
 
 <style scoped>
   #user {
-    font: 1.8em/1.5 '';
+    font-size: 1.5em;
+    line-height: 1.5em;
     text-align: center;
     font-weight: bold;
     margin: 20px 0;
