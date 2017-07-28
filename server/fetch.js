@@ -26,12 +26,16 @@ var startHunt = function (option) {
 // 检索关键词
   var checkKeyword = function (descr, keyword) {
     var include = keyword.include.split(','),
-      except = keyword.except.split(','),
+      except,
       included = false,
       excepted = true;
-    for (var i = 0; i < except.length; i++) {
-      if (descr.indexOf(except[i]) !== -1) {
-        excepted = false
+    //排除关键词可为空
+    if(keyword.except){
+      except = keyword.except.split(',');
+      for (var i = 0; i < except.length; i++) {
+        if (descr.indexOf(except[i]) !== -1) {
+          excepted = false
+        }
       }
     }
     for (var j = 0; j < include.length; j++) {
@@ -59,7 +63,7 @@ var startHunt = function (option) {
     for (var i = 0; i < results.length; i++) {
       if (results[i].isNew) {
         qrcode.generate(results[i].href, function (qr) {
-          info += '@' + results[i].seller + ':' + results[i].price + '\n' + results[i].time + ',' + results[i].title + ',' + results[i].location + '\n' + results[i].href + '\n' + results[i].descr + '\n' + qr +'\n\n'
+          info += '@' + results[i].seller + ':' + results[i].price + '\n' + results[i].time + ',' + results[i].title + ',' + results[i].location + '\n' + results[i].href + '\n' + results[i].descr + '\n' + (option.showQrcode ? qr : '') +'\n\n'
         });
       }
     }
