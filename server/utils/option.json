@@ -4,17 +4,7 @@
       "name": "kindle",
       "price": {
         "from": 300,
-        "to": 420
-      },
-      "keyword": {
-        "on": false
-      }
-    },
-    {
-      "name": "ipad 10.5",
-      "price": {
-        "from": 4000,
-        "to": 4500
+        "to": 500
       },
       "keyword": {
         "on": false
@@ -31,10 +21,9 @@
   ],
   "email": {
     "send": false,
-    "address": "1016812275@qq.com"
+    "address": "xxx@xx.com"
   },
   "log": {
-    "show": true,
-    "color": "green"
+    "show": true
   }
 }
