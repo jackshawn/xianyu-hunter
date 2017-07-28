@@ -22,7 +22,7 @@
       }
     },
     mounted(){
-    	this.getResults()
+    	this.loadMore()
     },
     methods: {
     	loadMore(){
