@@ -9,13 +9,12 @@
       <x-switch title="输出日志" v-model="option.log.show"></x-switch>
       <x-switch title="显示二维码" v-model="option.showQrcode"></x-switch>
       <x-switch title="发送邮件" v-model="option.email.send"></x-switch>
-      <x-input title="邮箱地址" v-show="option.email.send" v-model="option.email.address" type="text"
-               placeholder="接受邮件的邮箱地址"></x-input>
+      <x-input title="发件邮箱地址" v-show="option.email.send" v-model="option.email.sourceName" type="text" placeholder="接受邮件的邮箱地址"></x-input>
+      <x-input title="发件邮箱授权密码" v-show="option.email.send" v-model="option.email.sourcePwd" type="text" placeholder="发送邮件邮箱客户端授权密码"></x-input>
+      <x-input title="收件邮箱" v-show="option.email.send" v-model="option.email.address" type="text" placeholder="接受邮件的邮箱地址"></x-input>
       <x-switch title="全局关键词" v-model="option.keyword.on"></x-switch>
-      <x-input title="包括" v-show="option.keyword.on" v-model="option.keyword.include" type="text"
-               placeholder="用英文逗号分隔"></x-input>
-      <x-input title="排除" v-show="option.keyword.on" v-model="option.keyword.except" type="text"
-               placeholder="用英文逗号分隔,可以为空"></x-input>
+      <x-input title="包括" v-show="option.keyword.on" v-model="option.keyword.include" type="text" placeholder="用英文逗号分隔"></x-input>
+      <x-input title="排除" v-show="option.keyword.on" v-model="option.keyword.except" type="text" placeholder="用英文逗号分隔,可以为空"></x-input>
       <popup-picker title="时间间隔(s)" :data="timeList" v-model="option.time"></popup-picker>
     </group>
     <br>

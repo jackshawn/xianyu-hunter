@@ -1,45 +1,33 @@
 // 依赖模块
-var http = require('https');
-var cheerio = require('cheerio');
-var iconv = require('iconv-lite');
-var nodemailer = require('nodemailer');
-var qrcode = require('qrcode-terminal');
+const http = require('https');
+const cheerio = require('cheerio');
+const iconv = require('iconv-lite');
+const nodemailer = require('nodemailer');
+const qrcode = require('qrcode-terminal');
 
 
-var startHunt = function (option) {
+const startHunt = function (option) {
 
 // 存放结果
-  var results = []
+  let results = [];
   
-  var transporter = nodemailer.createTransport({
-    host: 'smtp.qq.com',
-    port: 465,
-    secure: true, // secure:true for port 465, secure:false for port 587
-    auth: {
-      user: '745640545@qq.com',
-      pass: 'euoqxnbmrjzkbfch'
-    }
-  });
-
-
-
 // 检索关键词
-  var checkKeyword = function (descr, keyword) {
-    var include = keyword.include.split(','),
+  let checkKeyword = function (descr, keyword) {
+    let include = keyword.include.split(','),
       except,
       included = false,
       excepted = true;
     //排除关键词可为空
     if(keyword.except){
       except = keyword.except.split(',');
-      for (var i = 0; i < except.length; i++) {
-        if (descr.indexOf(except[i]) !== -1) {
+      for(let i of except){
+        if (descr.indexOf(i) !== -1) {
           excepted = false
         }
       }
     }
-    for (var j = 0; j < include.length; j++) {
-      if (descr.indexOf(include[j]) !== -1) {
+    for (let i of include) {
+      if (descr.indexOf(i) !== -1) {
         included = true
       }
     }
@@ -47,10 +35,10 @@ var startHunt = function (option) {
   }
 
 // 检索已存结果
-  var checkResults = function (id) {
-    var saved = false;
-    for (var i = 0; i < results.length; i++) {
-      if (results[i].id === id) {
+  let checkResults = function (id) {
+    let saved = false;
+    for (let i of results) {
+      if (i.id === id) {
         saved = true;
       }
     }
@@ -58,70 +46,83 @@ var startHunt = function (option) {
   }
 
 // 打印结果
-  var printLog = function (title) {
-    var info = ''
-    for (var i = 0; i < results.length; i++) {
-      if (results[i].isNew) {
-        qrcode.generate(results[i].href, function (qr) {
-          info += '@' + results[i].seller + ':' + results[i].price + '\n' + results[i].time + ',' + results[i].title + ',' + results[i].location + '\n' + results[i].href + '\n' + results[i].descr + '\n' + (option.showQrcode ? qr : '') +'\n\n'
-        });
+  let printLog = function () {
+    if(option.log.show){
+      let log = '',title;
+      for (let i of results) {
+        if (i.isNew) {
+          title = i.name
+          qrcode.generate(i.href,function (qr) {
+            log += `@${i.seller}: ${i.price} \n${i.time}, ${i.title}, ${i.location} \n${i.href} \n${i.descr} \n${option.showQrcode?qr:''} \n\n`
+          });
+        }
       }
-    }
-    if(info){
-      console.log('-----------------------------------------'+title+'-----------------------------------------');
-      console.log(info)
+      if(log){
+        console.log(`-------------------------------------${title}-------------------------------------`)
+        console.log(log)
+      }
     }
   }
 
 // 发送结果
-  var sendEmail = function (subject) {
-    var mailOptions = {
-      from: '"target found!!" <745640545@qq.com>',
-      to: option.email.address,
-      subject: subject,
-      text: '',
-      html: ''
-    };
-    for (var i = 0; i < results.length; i++) {
-      if (results[i].isNew) {
-        mailOptions.text = 'found';
-        mailOptions.html += ('<p>@' + results[i].seller + '</p><p>' + results[i].price + '</p><p>'+results[i].location+'|'+results[i].time+'</p>><a href="' + results[i].href + '">点我跳转</a></br><p>' + results[i].descr + '</p></br></br>')
-      }
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.qq.com',
+    port: 465,
+    secure: true, // secure:true for port 465, secure:false for port 587
+    auth: {
+      user: option.email.sourceName,
+      pass: option.email.sourcePwd
     }
-    if(mailOptions.text){
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          return console.log(error);
+  });
+  
+  let sendEmail = function () {
+    if(option.email.send){
+      let mailOptions = {
+        from: `"target found!!" <${option.email.sourceName}>`,
+        to: option.email.address,
+        subject: results[0].name,
+        text: '',
+        html: ''
+      };
+      for (let i of results) {
+        if (i.isNew) {
+          mailOptions.text = 'found';
+          mailOptions.html += `<p>@${i.seller}</p><p>${i.price}</p><p>${i.time}, ${i.title}, ${i.location}</p>><a href="${i.href}">点我跳转</a><p>${i.descr}</p></br>`
         }
-        console.log('Message %s sent: %s', info.messageId, info.response);
-      });
+      }
+      if(mailOptions.text){
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            return console.log(error);
+          }
+          console.log('Message %s sent: %s', info.messageId, info.response);
+        });
+      }
     }
   }
 
 //重置
-  var reset = function () {
-    for (var i = 0; i < results.length; i++) {
-      results[i].isNew = false;
-    }
+  let reset = function () {
+    results.forEach(i => i.isNew = false)
   }
 
 // 筛选信息
   function filterItem(html,keyword, target) {
-    var $ = cheerio.load(iconv.decode(Buffer.concat(html), 'gbk'));
-    var items = $('.ks-waterfall')
-    for (var i = 1; i < items.length; i++) {
-      var item = items.eq(i);
-      var descr = item.find('.item-brief-desc').text().trim();
-      var id = item.find('.item-pic a').attr('href').substr(27);
-      var title = (function () {
-        var t = item.find('.item-pic a').attr('title');
+    let $ = cheerio.load(iconv.decode(Buffer.concat(html), 'gbk'));
+    let items = $('.ks-waterfall')
+    for (let i = 1; i < items.length; i++) {
+      let item = items.eq(i);
+      let descr = item.find('.item-brief-desc').text().trim();
+      let id = item.find('.item-pic a').attr('href').substr(27);
+      let title = (function () {
+        let t = item.find('.item-pic a').attr('title');
         if(t.indexOf('color=red') !== -1){
           return t.split('<font')[0] + t.split('font>')[t.split('font>').length - 1]
         }else{
           return t;
         }
       })()
-      var href = 'http://h5.m.taobao.com/2shou/mtdetail/index.html?id=' + id + '&hybrid=true';
+      let href = `http://h5.m.taobao.com/2shou/mtdetail/index.html?id=${id}&hybrid=true`;
       if (checkKeyword(descr + title, keyword) && !checkResults(id)) {
         results.push({
           seller: item.find('.seller-nick').text().trim(),
@@ -140,37 +141,30 @@ var startHunt = function (option) {
   }
 
 // 爬取目标
-  var getInfo = function () {
-    for(var i = 0;i< option.target.length;i++){
-      (function () {
-        var keyword = option.target[i].keyword.on ? option.target[i].keyword : option.keyword;
-        var target = option.target[i];
-        var url = 'https://s.2.taobao.com/list/list.htm?start=' + target.price.from + '&end=' + target.price.to + '&q=' + target.name + '&ist=1';
-        http.get(url, function (res) {
-          var html = [];
-          res.on('data', function (data) {
-            html.push(data);
-          });
-          res.on('end', function () {
-            filterItem(html, keyword, target.name);
-            if(option.log.show){
-              printLog(target.name)
-            }
-            if(option.email.send){
-              sendEmail(target.name)
-            }
-            reset()
-          })
-          res.on('error', function (e) {
-            console.error('错误:' + e.message);
-          });
+  let getInfo = function () {
+    for (let i of option.target) {
+      let keyword = i.keyword.on ? i.keyword : option.keyword;
+      let url = `https://s.2.taobao.com/list/list.htm?start=${i.price.from}&end=${i.price.to}&q=${i.name}&ist=1`;
+      http.get(url, function (res) {
+        let html = [];
+        res.on('data', function (data) {
+          html.push(data);
         });
-      })()
+        res.on('end', function () {
+          filterItem(html, keyword, i.name);
+          printLog()
+          sendEmail()
+          reset()
+        })
+        res.on('error', function (e) {
+          console.error('错误:' + e.message);
+        });
+      });
     }
   }
   
   getInfo();
-  var intervalId = setInterval(getInfo, option.time[0]*1000)
+  let intervalId = setInterval(getInfo, option.time[0]*1000)
   return {
     id: intervalId,
     results: results
